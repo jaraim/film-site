@@ -1,0 +1,94 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %}{{ video.title }} 播放 · 极简影视{% endblock %}
+{% block head %}
+<link rel="stylesheet" href="{% static 'player/film-player.css' %}">
+<style>
+.ep-list { display:flex; flex-wrap:wrap; gap:8px; margin-top:12px; }
+.ep-list a {
+  min-width:44px; text-align:center; padding:7px 10px; border-radius:8px; background:#16233c;
+  font-size:13px; color:#94a3b8; border:1px solid transparent;
+}
+.ep-list a:hover { color:#fff; }
+.ep-list a.current { background:#2563eb; color:#fff; }
+.source-tabs { display:flex; gap:8px; flex-wrap:wrap; margin-bottom:6px; }
+.source-tabs a { padding:6px 14px; border-radius:8px; background:#16233c; font-size:13px; color:#94a3b8; }
+.source-tabs a.current { background:#1d4ed8; color:#fff; }
+.play-title { font-size:20px; font-weight:800; margin-bottom:14px; }
+.play-card { background:#0b1220; border:1px solid #1e293b; border-radius:14px; padding:14px; }
+</style>
+{% endblock %}
+{% block content %}
+{% if ads_map.play_top %}<div class="ad-slot">{% for a in ads_map.play_top %}{{ a|safe }}{% endfor %}</div>{% endif %}
+<div class="page-title">{{ video.title }}</div>
+
+<div class="play-card">
+  <div id="player-host">
+    <video id="film-video" controls playsinline preload="metadata"></video>
+  </div>
+
+  <div class="section" style="margin-top:14px;">
+    <div class="section-title" style="font-size:15px;">线路切换</div>
+    <div class="source-tabs">
+      {% for s in sources %}
+      <a href="/play/{{ video.pk }}/?from={{ s.from_flag }}&ep={{ ep_no }}"
+         class="{% if s.from_flag == current_flag %}current{% endif %}">{{ s.name }}</a>
+      {% endfor %}
+    </div>
+  </div>
+
+  <div class="section" style="margin-top:10px;">
+    <div class="section-title" style="font-size:15px;">选集（{{ total_eps }}集）</div>
+    <div class="ep-list" id="ep-list">
+    </div>
+  </div>
+</div>
+{% if ads_map.play_bottom %}<div class="ad-slot">{% for a in ads_map.play_bottom %}{{ a|safe }}{% endfor %}</div>{% endif %}
+
+<script>window.__SOURCES__ = {{ sources_data_json|safe }};</script>
+<script>window.__CURRENT__ = { flag: "{{ current_flag }}", ep: {{ ep_no }} };</script>
+<script>window.__VIDEO__ = { id: {{ video.pk }}, title: "{{ video.title }}", skipIntro: {{ video.skip_intro }}, skipOutro: {{ video.skip_outro }} };</script>
+<script>window.__PLAYER_CONFIG__ = {{ player_config_json|safe }};</script>
+<script src="{% static 'player/film-player.js' %}"></script>
+<script>
+(function(){
+  const host = document.getElementById('player-host');
+  const video = document.getElementById('film-video');
+
+  // 渲染剧集列表
+  const src = window.__SOURCES__.find(s => s.flag === window.__CURRENT__.flag);
+  const listEl = document.getElementById('ep-list');
+  listEl.innerHTML = '';
+  if (src) {
+    src.episodes.forEach(ep => {
+      const a = document.createElement('a');
+      a.textContent = ep.name || '第' + ep.n + '集';
+      a.href = '/play/{{ video.pk }}/?from=' + src.flag + '&ep=' + ep.n;
+      if (ep.n === window.__CURRENT__.ep) a.className = 'current';
+      listEl.appendChild(a);
+    });
+  }
+
+  const pc = window.__PLAYER_CONFIG__ || {};
+  // 全站默认配置兜底
+  if (pc.default_skip_intro && !window.__VIDEO__.skipIntro) window.__VIDEO__.skipIntro = parseFloat(pc.default_skip_intro) || 0;
+  if (pc.default_skip_outro && !window.__VIDEO__.skipOutro) window.__VIDEO__.skipOutro = parseFloat(pc.default_skip_outro) || 0;
+
+  const player = new FilmPlayer(video, {
+    sources: window.__SOURCES__,
+    currentFlag: window.__CURRENT__.flag,
+    ep: window.__CURRENT__.ep,
+    video: window.__VIDEO__,
+    autoNext: pc.auto_next === '0' ? false : true,
+    onSwitch: function(flag, ep) {
+      // 切换后同步URL与剧集高亮
+      history.replaceState(null, '', '/play/{{ video.pk }}/?from=' + flag + '&ep=' + ep);
+      listEl.querySelectorAll('a').forEach(a => a.classList.remove('current'));
+      const t = listEl.querySelector('a:nth-child(' + ep + ')');
+      if (t) t.classList.add('current');
+    },
+    onIntroSkip: function(sec) { /* 已跳片头 */ }
+  });
+})();
+</script>
+{% endblock %}

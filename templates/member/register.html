@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% block title %}用户注册 · 极简影视{% endblock %}
+{% block content %}
+<div class="auth-card">
+  <h1>注册账号</h1>
+  <p class="sub">注册即送 <b>100 积分</b>，每日签到再得 5 积分</p>
+  <form method="post" class="auth-form">
+    {% csrf_token %}
+    {% for field in form %}
+    <div class="field">
+      <label>{{ field.label }}</label>
+      {{ field }}
+      {% if field.help_text %}<small>{{ field.help_text }}</small>{% endif %}
+      {% for err in field.errors %}<small class="err">{{ err }}</small>{% endfor %}
+    </div>
+    {% endfor %}
+    <button type="submit" class="btn auth-btn">注册</button>
+  </form>
+  <p class="switch">已有账号？<a href="{% url 'member:login' %}">去登录</a></p>
+</div>
+{% endblock %}

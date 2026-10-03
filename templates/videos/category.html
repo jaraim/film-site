@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+{% block title %}{{ cat.name }} · 极简影视{% endblock %}
+{% block content %}
+{% if ads_map.list_top %}<div class="ad-slot">{% for a in ads_map.list_top %}{{ a|safe }}{% endfor %}</div>{% endif %}
+<div class="page-title">{{ cat.name }}</div>
+{% if children %}
+<div class="filter">
+  <a href="?sort={{ current_sort }}" class="{% if not current_sub %}active{% endif %}">全部</a>
+  {% for c in children %}
+  <a href="?sub={{ c.slug }}&sort={{ current_sort }}" class="{% if current_sub == c.slug %}active{% endif %}">{{ c.name }}</a>
+  {% endfor %}
+</div>
+{% endif %}
+<div class="filter">
+  <a href="?{% if current_sub %}sub={{ current_sub }}&{% endif %}{% if current_type %}type={{ current_type }}&{% endif %}sort=latest" class="{% if current_sort == 'latest' %}active{% endif %}">最新</a>
+  <a href="?{% if current_sub %}sub={{ current_sub }}&{% endif %}{% if current_type %}type={{ current_type }}&{% endif %}sort=views" class="{% if current_sort == 'views' %}active{% endif %}">最热</a>
+</div>
+<div class="grid">
+  {% for v in videos %}
+  <a href="{{ v.get_absolute_url }}" class="card">
+    <div class="poster">
+      {% if v.poster %}<img src="{{ v.poster }}" loading="lazy" alt="">{% else %}<div class="ph">🎬</div>{% endif %}
+    </div>
+    <div class="meta"><div class="t">{{ v.title }}</div><div class="s">{{ v.year }} · {{ v.area }}</div></div>
+  </a>
+  {% empty %}
+  <div class="empty">该分类暂无内容</div>
+  {% endfor %}
+</div>
+{% endblock %}

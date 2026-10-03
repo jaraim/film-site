@@ -1,0 +1,65 @@
+{% extends "base.html" %}
+{% block title %}{{ video.title }} · 极简影视{% endblock %}
+{% block content %}
+{% if ads_map.detail_top %}<div class="ad-slot">{% for a in ads_map.detail_top %}{{ a|safe }}{% endfor %}</div>{% endif %}
+<div class="page-title">{{ video.title }}
+  <span class="badge">{{ video.get_video_type_display }}</span>
+</div>
+
+<div style="display:grid;grid-template-columns:220px 1fr;gap:24px;flex-wrap:wrap;"
+     class="detail-grid">
+  <div>
+    <div class="poster" style="aspect-ratio:2/3;border-radius:10px;overflow:hidden;background:#1e293b;">
+      {% if video.poster %}<img src="{{ video.poster }}" style="width:100%;height:100%;object-fit:cover;" alt="">{% else %}<div style="display:flex;height:100%;align-items:center;justify-content:center;color:#475569;font-size:40px;">🎬</div>{% endif %}
+    </div>
+  </div>
+  <div>
+    <table style="width:100%;font-size:14px;border-collapse:collapse;">
+      <tr><td style="width:70px;color:#64748b;padding:6px 0;">导演</td><td>{{ video.director|default:"-" }}</td></tr>
+      <tr><td style="color:#64748b;padding:6px 0;">主演</td><td>{{ video.actors|default:"-" }}</td></tr>
+      <tr><td style="color:#64748b;padding:6px 0;">地区</td><td>{{ video.area|default:"-" }}</td></tr>
+      <tr><td style="color:#64748b;padding:6px 0;">年份</td><td>{{ video.year|default:"-" }}</td></tr>
+      <tr><td style="color:#64748b;padding:6px 0;">状态</td><td>{% if video.status == 'ongoing' %}连载中{% else %}已完结{% endif %}</td></tr>
+      <tr><td style="color:#64748b;padding:6px 0;">更新时间</td><td>{{ video.updated_at|date:"Y-m-d H:i" }}</td></tr>
+    </table>
+    <div style="margin-top:16px;">
+      <a class="btn" href="/play/{{ video.pk }}/">▶ 立即播放</a>
+      {% if video.need_points %}<span class="badge" style="margin-left:8px;background:#f59e0b;color:#fff;">🔑 {{ video.need_points }} 积分观看</span>{% endif %}
+      <span style="margin-left:12px;color:#64748b;font-size:13px;">{{ video.views }} 次播放</span>
+    </div>
+    <div style="margin-top:18px;font-size:14px;color:#94a3b8;line-height:1.7;">
+      <b style="color:#e2e8f0;">简介：</b>{{ video.description|default:"暂无简介" }}
+    </div>
+  </div>
+</div>
+
+<div class="section" style="margin-top:28px;">
+  <div class="section-title">播放线路</div>
+  <div style="display:flex;gap:8px;flex-wrap:wrap;">
+    {% for s in sources %}
+    <a class="btn" style="background:#1e293b;" href="/play/{{ video.pk }}/?from={{ s.from_flag }}">{{ s.name }} ({{ s.episodes|length }}集)</a>
+    {% endfor %}
+  </div>
+</div>
+
+{% if related %}
+<div class="section">
+  <div class="section-title">相关推荐</div>
+  <div class="grid">
+    {% for v in related %}
+    <a href="{{ v.get_absolute_url }}" class="card">
+      <div class="poster">
+        {% if v.poster %}<img src="{{ v.poster }}" loading="lazy" alt="">{% else %}<div class="ph">🎬</div>{% endif %}
+      </div>
+      <div class="meta"><div class="t">{{ v.title }}</div></div>
+    </a>
+    {% endfor %}
+  </div>
+</div>
+{% endif %}
+{% if ads_map.detail_bottom %}<div class="ad-slot">{% for a in ads_map.detail_bottom %}{{ a|safe }}{% endfor %}</div>{% endif %}
+
+<style>
+@media (max-width:700px){ .detail-grid{ grid-template-columns:1fr !important; } }
+</style>
+{% endblock %}

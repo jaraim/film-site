@@ -1,0 +1,44 @@
+/* 通用影视播放器样式 */
+.fp-wrap { position: relative; width: 100%; background: #000; border-radius: 10px; overflow: hidden; }
+.fp-wrap video { width: 100%; display: block; background: #000; aspect-ratio: 16/9; }
+
+.fp-controls { position: absolute; left: 0; right: 0; bottom: 0;
+  background: linear-gradient(transparent, rgba(0,0,0,.75)); padding: 30px 12px 10px; }
+.fp-wrap:not(:hover) .fp-controls, .fp-wrap.paused .fp-controls { opacity: .4; }
+
+.fp-bar { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.fp-btn {
+  background: rgba(255,255,255,.16); color: #fff; border: none; border-radius: 6px;
+  padding: 6px 12px; font-size: 13px; cursor: pointer; backdrop-filter: blur(4px);
+}
+.fp-btn:hover { background: rgba(255,255,255,.3); }
+.fp-btn.active { background: #2563eb; }
+.fp-btn.rate { min-width: 52px; font-weight: 700; color: #ffd76a; }
+
+.fp-source {
+  background: rgba(255,255,255,.16); color: #fff; border: none; border-radius: 6px;
+  padding: 6px 8px; font-size: 13px; cursor: pointer; outline: none;
+}
+.fp-source option { color: #111; }
+
+.fp-panel {
+  position: absolute; bottom: 56px; right: 12px; background: rgba(17,24,39,.92);
+  border-radius: 10px; padding: 12px; width: 240px; backdrop-filter: blur(6px); z-index: 5;
+}
+.fp-prow { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; }
+.fp-prow span { color: #e5e7eb; font-size: 13px; }
+.fp-prow input {
+  width: 92px; padding: 5px 8px; border-radius: 6px; border: none; background: #374151; color: #fff; font-size: 13px;
+}
+
+.fp-toast {
+  position: absolute; top: 14px; left: 50%; transform: translateX(-50%);
+  background: rgba(0,0,0,.8); color: #fff; padding: 8px 16px; border-radius: 20px;
+  font-size: 13px; opacity: 0; transition: opacity .3s; pointer-events: none; z-index: 6; white-space: nowrap;
+}
+.fp-toast.show { opacity: 1; }
+
+@media (max-width: 640px) {
+  .fp-btn { padding: 5px 8px; font-size: 12px; }
+  .fp-source { max-width: 120px; }
+}

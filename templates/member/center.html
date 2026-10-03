@@ -1,0 +1,60 @@
+{% extends "base.html" %}
+{% block title %}用户中心 · 极简影视{% endblock %}
+{% block content %}
+<div class="page-title">用户中心</div>
+
+{% if need_video %}
+<div class="msg warning">积分不足：观看《{{ need_video.title }}》需要 <b>{{ need_video.need_points }}</b> 积分，当前余额不足。请签到或充值。</div>
+{% endif %}
+
+<div class="panel">
+  <h2>我的积分</h2>
+  <div class="stat-row">
+    <div class="stat"><div class="num">{{ profile.points }}</div><div class="lbl">积分余额</div></div>
+    <div class="stat"><div class="num">{{ profile.checkin_count }}</div><div class="lbl">累计签到</div></div>
+    <div class="stat"><div class="num">{{ records|length }}</div><div class="lbl">积分明细</div></div>
+  </div>
+  <div style="margin-top:16px;display:flex;gap:10px;flex-wrap:wrap;">
+    {% if can_checkin %}
+    <a class="btn" href="{% url 'member:checkin' %}">✓ 今日签到 +5</a>
+    {% else %}
+    <a class="btn" style="background:#334155;cursor:default;">今日已签到</a>
+    {% endif %}
+    <a class="btn" style="background:#7c3aed;" href="{% url 'member:recharge' %}">⚡ 积分充值</a>
+    <a class="btn" style="background:#334155;" href="{% url 'member:records' %}">查看全部明细</a>
+  </div>
+</div>
+
+<div class="panel">
+  <h2>最近积分流水</h2>
+  {% if records %}
+  <table class="records-table">
+    <tr><th>时间</th><th>类型</th><th>变动</th><th>余额</th><th>备注</th></tr>
+    {% for r in records %}
+    <tr>
+      <td>{{ r.created_at|date:"m-d H:i" }}</td>
+      <td>{{ r.get_change_type_display }}</td>
+      <td class="{% if r.delta >= 0 %}pos{% else %}neg{% endif %}">{{ r.delta|stringformat:"+d" }}</td>
+      <td>{{ r.balance }}</td>
+      <td>{{ r.note }}</td>
+    </tr>
+    {% endfor %}
+  </table>
+  {% else %}
+  <p style="color:#64748b;">暂无积分记录</p>
+  {% endif %}
+</div>
+
+<div class="panel">
+  <h2>已解锁影片</h2>
+  {% if accesses %}
+  <div class="unlock-grid">
+    {% for a in accesses %}
+    <a class="unlock-card" href="{{ a.video.get_absolute_url }}">🎬 {{ a.video.title }}<br><small>{{ a.created_at|date:"Y-m-d" }}</small></a>
+    {% endfor %}
+  </div>
+  {% else %}
+  <p style="color:#64748b;">尚未解锁付费影片</p>
+  {% endif %}
+</div>
+{% endblock %}

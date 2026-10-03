@@ -1,0 +1,100 @@
+{% extends "admin/base_site.html" %}
+{% block title %}后台采集{% endblock %}
+{% block extrastyle %}
+<style>
+  body { background:#0f172a; color:#e2e8f0; }
+  #content { max-width:800px; margin:0 auto; padding:24px; }
+  h1 { color:#fff; font-size:20px; }
+  .form-card { background:#16233c; border:1px solid #1e293b; border-radius:12px; padding:20px; margin:18px 0; }
+  .form-card label { display:block; color:#94a3b8; font-size:13px; margin:12px 0 5px; }
+  .form-card input, .form-card select {
+    width:100%; padding:10px 12px; border-radius:8px; border:1px solid #334155;
+    background:#0f172a; color:#fff; font-size:14px; box-sizing:border-box;
+  }
+  .form-card .row { display:flex; gap:14px; }
+  .form-card .row > div { flex:1; }
+  .form-card .check { display:flex; align-items:center; gap:8px; margin-top:14px; }
+  .form-card .check input { width:auto; }
+  .submit { margin-top:18px; padding:12px 30px; border-radius:8px; border:none;
+    background:#2563eb; color:#fff; font-size:15px; cursor:pointer; }
+  .submit:hover { background:#1d4ed8; }
+  .preset { padding:8px 12px; border-radius:6px; border:1px solid #334155;
+    background:#0f172a; color:#94a3b8; font-size:12px; cursor:pointer; margin:4px 4px 4px 0; }
+  .preset:hover { color:#fff; border-color:#2563eb; }
+  .result { margin-top:18px; padding:16px; border-radius:10px; font-size:13px; white-space:pre-wrap; }
+  .result.ok { background:#052e16; color:#4ade80; border:1px solid #14532d; }
+  .result.fail { background:#450a0a; color:#f87171; border:1px solid #7f1d1d; }
+  .result pre { background:#0f172a; padding:12px; border-radius:8px; color:#cbd5e1; font-size:12px; overflow:auto; }
+  .back { color:#2563eb; text-decoration:none; font-size:13px; }
+</style>
+{% endblock %}
+{% block content %}
+<div>
+  <a class="back" href="/admin/">← 返回后台首页</a>
+  <h1>🎬 采集影视数据（苹果 CMS provide/vod）</h1>
+
+  <div style="font-size:13px;color:#94a3b8;">点击预设快速填充：</div>
+  {% for p in presets %}
+  <button class="preset" onclick="fill('{{ p.name }}','{{ p.api }}','{{ p.detail_api }}')">{{ p.name }}</button>
+  {% endfor %}
+
+  <form class="form-card" method="post" id="collect-form">
+    {% csrf_token %}
+    <label>采集接口地址 *</label>
+    <input name="api" id="api" placeholder="http://.../provide/vod/at/xml/" required>
+
+    <div class="row">
+      <div>
+        <label>返回格式</label>
+        <select name="at">
+          <option value="auto">自动识别</option>
+          <option value="json">JSON</option>
+          <option value="xml">XML</option>
+        </select>
+      </div>
+      <div>
+        <label>采集页数</label>
+        <input name="pages" value="1" type="number" min="1" max="50">
+      </div>
+      <div>
+        <label>仅指定来源(from)</label>
+        <input name="from_flag" placeholder="如 feifan / ffm3u8（留空全部）">
+      </div>
+    </div>
+
+    <label>Detail 接口（列表无播放数据时用，可选）</label>
+    <input name="detail_api" id="detail_api" placeholder="默认同采集接口；若列表xml而detail需json请填json地址">
+
+    <div class="check">
+      <input type="checkbox" name="detail" id="detail" checked>
+      <label for="detail" style="margin:0;">逐个请求 detail 补齐播放地址（推荐，可播）</label>
+    </div>
+
+    <button type="submit" class="submit" id="btn">开始采集</button>
+  </form>
+
+  {% if result %}
+  <div class="result {% if result == '成功' %}ok{% else %}fail{% endif %}">
+    <b>结果：{{ result }}</b>
+    {% if stderr %}<div style="color:#f87171;">{{ stderr }}</div>{% endif %}
+    {% if stdout %}<pre>{{ stdout }}</pre>{% endif %}
+  </div>
+  {% endif %}
+
+  <p style="font-size:12px;color:#64748b;margin-top:14px;">
+    ⚠️ 采集第三方资源请注意版权合规；采集页数较多时网页会等待较久，建议每次 1-5 页。
+  </p>
+</div>
+
+<script>
+function fill(name, api, detail_api) {
+  document.getElementById('api').value = api;
+  document.getElementById('detail_api').value = detail_api || '';
+  document.getElementById('btn').textContent = '采集：' + name;
+}
+document.getElementById('collect-form').addEventListener('submit', function(){
+  document.getElementById('btn').textContent = '采集中，请稍候…';
+  document.getElementById('btn').disabled = true;
+});
+</script>
+{% endblock %}

@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% block title %}积分明细 · 极简影视{% endblock %}
+{% block content %}
+<div class="page-title">积分明细</div>
+<div class="panel">
+  <table class="records-table">
+    <tr><th>时间</th><th>类型</th><th>变动</th><th>余额</th><th>备注</th></tr>
+    {% for r in records %}
+    <tr>
+      <td>{{ r.created_at|date:"Y-m-d H:i:s" }}</td>
+      <td>{{ r.get_change_type_display }}</td>
+      <td class="{% if r.delta >= 0 %}pos{% else %}neg{% endif %}">{{ r.delta|stringformat:"+d" }}</td>
+      <td>{{ r.balance }}</td>
+      <td>{{ r.note }}</td>
+    </tr>
+    {% empty %}
+    <tr><td colspan="5" style="text-align:center;color:#64748b;padding:30px;">暂无积分记录</td></tr>
+    {% endfor %}
+  </table>
+</div>
+{% endblock %}

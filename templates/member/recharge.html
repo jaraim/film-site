@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% block title %}积分充值 · 极简影视{% endblock %}
+{% block content %}
+<div class="auth-card">
+  <h1>积分充值</h1>
+  <p class="sub">当前余额：<b>{{ request.user.profile.points }}</b> 积分</p>
+  <form method="post" class="auth-form">
+    {% csrf_token %}
+    <div class="field">
+      <label>选择充值额度（演示）</label>
+      <div class="amount-row">
+        <button class="amount-btn" type="submit" name="amount" value="100">+100</button>
+        <button class="amount-btn" type="submit" name="amount" value="500">+500</button>
+        <button class="amount-btn" type="submit" name="amount" value="1000">+1000</button>
+        <button class="amount-btn" type="submit" name="amount" value="5000">+5000</button>
+      </div>
+    </div>
+  </form>
+  <p class="switch" style="font-size:12px;">演示环境直接到账，正式部署请接入支付系统</p>
+</div>
+{% endblock %}

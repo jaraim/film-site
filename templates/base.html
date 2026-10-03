@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+{% load static %}
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{% block title %}极简影视{% endblock %}</title>
+<style>
+* { box-sizing: border-box; margin:0; padding:0; }
+body { font-family:-apple-system,"PingFang SC","Microsoft YaHei",sans-serif; background:#0f172a; color:#e2e8f0; }
+a { color:inherit; text-decoration:none; }
+.header { background:#0b1220; border-bottom:1px solid #1e293b; position:sticky; top:0; z-index:20; }
+.hwrap { max-width:1200px; margin:0 auto; padding:14px 16px; display:flex; align-items:center; gap:20px; flex-wrap:wrap; }
+.logo { font-size:20px; font-weight:800; color:#2563eb; }
+.nav { display:flex; gap:16px; flex-wrap:wrap; }
+.nav a { color:#94a3b8; font-size:14px; }
+.nav a:hover { color:#fff; }
+.search { margin-left:auto; display:flex; gap:6px; }
+.search input { padding:8px 12px; border-radius:8px; border:1px solid #334155; background:#0f172a; color:#fff; outline:none; width:200px; }
+.search button { padding:8px 16px; border-radius:8px; border:none; background:#2563eb; color:#fff; cursor:pointer; }
+.wrap { max-width:1200px; margin:0 auto; padding:20px 16px; }
+.section { margin-bottom:28px; }
+.section-title { font-size:17px; font-weight:700; margin-bottom:12px; color:#fff; display:flex; align-items:center; gap:8px; }
+.section-title::before { content:""; width:4px; height:16px; background:#2563eb; border-radius:2px; }
+.grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(150px,1fr)); gap:14px; }
+.card { background:#16233c; border-radius:10px; overflow:hidden; transition:transform .15s; }
+.card:hover { transform:translateY(-3px); }
+.card .poster { aspect-ratio:2/3; background:#1e293b; position:relative; overflow:hidden; }
+.card .poster img { width:100%; height:100%; object-fit:cover; }
+.card .poster .ph { position:absolute; inset:0; display:flex; align-items:center; justify-content:center; color:#475569; font-size:28px; }
+.card .meta { padding:8px 10px; }
+.card .meta .t { font-size:13px; font-weight:600; color:#f1f5f9; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.card .meta .s { font-size:11px; color:#64748b; margin-top:3px; }
+.badge { display:inline-block; padding:1px 6px; border-radius:4px; font-size:11px; background:#1d4ed8; color:#bfdbfe; }
+.banner-row { display:grid; grid-template-columns:repeat(auto-fill,minmax(180px,1fr)); gap:14px; margin-bottom:26px; }
+.page-title { font-size:22px; font-weight:800; margin-bottom:16px; }
+.filter { display:flex; gap:8px; flex-wrap:wrap; margin-bottom:16px; }
+.filter a { padding:5px 12px; border-radius:20px; background:#1e293b; color:#94a3b8; font-size:13px; }
+.filter a.active, .filter a:hover { background:#2563eb; color:#fff; }
+.empty { text-align:center; color:#64748b; padding:60px 0; }
+.btn { display:inline-block; padding:8px 18px; border-radius:8px; background:#2563eb; color:#fff; font-size:14px; border:none; cursor:pointer; }
+.user-area { display:flex; gap:8px; align-items:center; }
+.user-badge { display:inline-flex; align-items:center; gap:6px; padding:6px 12px; border-radius:8px; background:#16233c; color:#e2e8f0; font-size:13px; }
+.user-badge .pts { color:#ffd76a; font-weight:700; }
+.user-logout { color:#94a3b8; font-size:13px; }
+.user-logout:hover { color:#f87171; }
+.messages { max-width:1200px; margin:12px auto 0; padding:0 16px; }
+.msg { padding:10px 14px; border-radius:8px; margin-bottom:8px; font-size:13px; }
+.msg.success { background:#052e16; color:#4ade80; border:1px solid #14532d; }
+.msg.warning { background:#431407; color:#fb923c; border:1px solid #7c2d12; }
+.msg.info { background:#0c4a6e; color:#38bdf8; border:1px solid #155e75; }
+.msg.error { background:#450a0a; color:#f87171; border:1px solid #7f1d1d; }
+.auth-card { max-width:420px; margin:30px auto; background:#16233c; border:1px solid #1e293b; border-radius:14px; padding:26px; }
+.auth-card h1 { font-size:20px; margin-bottom:6px; }
+.auth-card .sub { color:#94a3b8; font-size:13px; margin-bottom:18px; }
+.auth-card .sub b { color:#ffd76a; }
+.auth-form .field { margin-bottom:14px; }
+.auth-form label { display:block; font-size:13px; color:#94a3b8; margin-bottom:5px; }
+.auth-form input { width:100%; padding:10px 12px; border-radius:8px; border:1px solid #334155; background:#0f172a; color:#fff; font-size:14px; outline:none; }
+.auth-form input:focus { border-color:#2563eb; }
+.auth-form small { color:#64748b; font-size:12px; display:block; margin-top:3px; }
+.auth-form small.err { color:#f87171; }
+.auth-form ul { color:#f87171; font-size:12px; list-style:none; margin:4px 0; }
+.auth-btn { width:100%; padding:12px; font-size:15px; margin-top:6px; }
+.auth-card .switch { text-align:center; margin-top:14px; font-size:13px; color:#94a3b8; }
+.auth-card .switch a { color:#2563eb; }
+.panel { background:#16233c; border:1px solid #1e293b; border-radius:14px; padding:20px; margin-bottom:18px; }
+.panel h2 { font-size:16px; margin-bottom:14px; }
+.stat-row { display:flex; gap:16px; flex-wrap:wrap; }
+.stat { flex:1; min-width:130px; background:#0f172a; border:1px solid #1e293b; border-radius:10px; padding:16px; text-align:center; }
+.stat .num { font-size:26px; font-weight:800; color:#ffd76a; }
+.stat .lbl { font-size:12px; color:#64748b; margin-top:4px; }
+.records-table { width:100%; border-collapse:collapse; font-size:13px; }
+.records-table th, .records-table td { padding:9px 10px; text-align:left; border-bottom:1px solid #1e293b; }
+.records-table th { color:#94a3b8; font-weight:600; background:#0f172a; }
+.pos { color:#4ade80; }
+.neg { color:#f87171; }
+.unlock-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(140px,1fr)); gap:12px; }
+.unlock-card { background:#0f172a; border:1px solid #1e293b; border-radius:10px; padding:12px; font-size:13px; color:#e2e8f0; }
+.amount-row { display:flex; gap:10px; flex-wrap:wrap; }
+.amount-btn { flex:1; min-width:90px; padding:14px; border-radius:10px; background:#0f172a; border:1px solid #334155; color:#ffd76a; font-size:16px; font-weight:700; cursor:pointer; }
+.amount-btn:hover { border-color:#2563eb; }
+.recharge-form { margin-top:16px; display:flex; gap:10px; }
+.recharge-form input { flex:1; padding:10px; border-radius:8px; border:1px solid #334155; background:#0f172a; color:#fff; }
+.ad-slot { background:#0f172a; border:1px dashed #334155; border-radius:10px; margin:14px 0; min-height:60px; display:flex; align-items:center; justify-content:center; overflow:hidden; }
+.ad-slot img { display:block; }
+.ad-top { margin-top:0; }
+.footer { max-width:1200px; margin:24px auto 0; padding:18px 16px 30px; text-align:center; color:#475569; font-size:12px; border-top:1px solid #1e293b; }
+@media (max-width:640px){
+  .grid { grid-template-columns:repeat(3,1fr); }
+  .search input { width:120px; }
+  .search { width:100%; margin-top:6px; }
+}
+</style>
+{% block head %}{% endblock %}
+</head>
+<body>
+<header class="header">
+  <div class="hwrap">
+    <a class="logo" href="/">▶ 极简影视</a>
+    <nav class="nav">
+      <a href="/">首页</a>
+      {% for c in categories %}<a href="{{ c.get_absolute_url }}">{{ c.name }}</a>{% endfor %}
+    </nav>
+    <div class="user-area">
+      {% if user.is_authenticated %}
+      <a class="user-badge" href="{% url 'member:center' %}">👤 {{ user.username }}<span class="pts">{{ user.profile.points }}分</span></a>
+      <a class="user-logout" href="{% url 'member:logout' %}">退出</a>
+      {% else %}
+      <a class="user-badge" href="{% url 'member:login' %}">登录</a>
+      <a class="user-badge" href="{% url 'member:register' %}">注册</a>
+      {% endif %}
+    </div>
+    <form class="search" action="/search/" method="get">
+      <input type="text" name="q" placeholder="搜索片名/演员/导演">
+      <button>搜索</button>
+    </form>
+  </div>
+</header>
+{% if messages %}
+<div class="messages">
+  {% for m in messages %}<div class="msg {{ m.tags }}">{{ m }}</div>{% endfor %}
+</div>
+{% endif %}
+<div class="wrap">
+  {% if ads_map.home_top %}<div class="ad-slot ad-top">{% for a in ads_map.home_top %}{{ a|safe }}{% endfor %}</div>{% endif %}
+  {% block content %}{% endblock %}
+  {% if ads_map.footer %}<div class="ad-slot">{% for a in ads_map.footer %}{{ a|safe }}{% endfor %}</div>{% endif %}
+</div>
+<footer class="footer">{{ site_name|default:"极简影视" }} · {{ site_footer|default:"" }}</footer>
+</body>
+</html>

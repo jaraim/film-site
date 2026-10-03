@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+{% block title %}首页 · 极简影视{% endblock %}
+{% block content %}
+<div class="banner-row">
+  {% for v in banners %}
+  <a href="{{ v.get_absolute_url }}" class="card">
+    <div class="poster">
+      {% if v.poster %}<img src="{{ v.poster }}" loading="lazy" alt="">{% else %}<div class="ph">🎬</div>{% endif %}
+    </div>
+    <div class="meta"><div class="t">{{ v.title }}</div><div class="s">🔥 {{ v.views }} 播放</div></div>
+  </a>
+  {% endfor %}
+</div>
+
+<div class="section">
+  <div class="section-title">最近更新</div>
+  <div class="grid">
+    {% for v in latest %}
+    <a href="{{ v.get_absolute_url }}" class="card">
+      <div class="poster">
+        {% if v.poster %}<img src="{{ v.poster }}" loading="lazy" alt="">{% else %}<div class="ph">🎬</div>{% endif %}
+        <span class="badge" style="position:absolute;top:6px;left:6px;">{{ v.get_video_type_display }}</span>
+      </div>
+      <div class="meta"><div class="t">{{ v.title }}</div><div class="s">{{ v.year }} · {{ v.area }}</div></div>
+    </a>
+    {% empty %}
+    <div class="empty">暂无内容，请在后台运行采集命令导入数据</div>
+    {% endfor %}
+  </div>
+</div>
+
+{% if ads_map.home_side %}<div class="ad-slot">{% for a in ads_map.home_side %}{{ a|safe }}{% endfor %}</div>{% endif %}
+
+{% for label, items in by_type.items %}
+{% if items %}
+<div class="section">
+  <div class="section-title">{{ label }}</div>
+  <div class="grid">
+    {% for v in items %}
+    <a href="{{ v.get_absolute_url }}" class="card">
+      <div class="poster">
+        {% if v.poster %}<img src="{{ v.poster }}" loading="lazy" alt="">{% else %}<div class="ph">🎬</div>{% endif %}
+      </div>
+      <div class="meta"><div class="t">{{ v.title }}</div><div class="s">{{ v.year }}</div></div>
+    </a>
+    {% endfor %}
+  </div>
+</div>
+{% endif %}
+{% endfor %}
+{% endblock %}
